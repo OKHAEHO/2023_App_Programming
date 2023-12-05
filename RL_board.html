@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>음식리스트</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    :root {
+      --padding: 60px;
+    }
+
+    .box {
+      position: relative;
+      margin: 0px auto;
+      width: 400px;
+      height: 600px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: var(--padding);
+      background-color: #c4dfff;
+      border-radius: 7px;
+      overflow-y: auto;
+    }
+    h2 {
+      color: #547fb2;
+      
+
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    button {
+      padding: 0px;
+      font-size: 13px;
+      background-color: #ffe4c4;
+      color: black;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #ffe4c4;
+    }
+
+    button#returnpage {
+      width: 100px;
+      padding: 10px;
+      margin-bottom: 30px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+
+    <h2>음식 리스트</h2>
+    <button id="returnpage" onclick="returnpage()">되돌아가기</button>
+    <table id="post-list">
+      <thead>
+        <tr>
+          <th>카테고리</th>
+          <th>음식 이름</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+    <button id="returnpage" onclick="returnpage()">되돌아가기</button>
+  </div>
+
+  <script>
+
+
+    function deletePost(no) {
+      fetch('RL_delete_post.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `no=${no}`,
+      })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then((result) => {
+        if (result.success) {
+          loadPosts();
+        } else {
+          console.error('Error:', result.message);
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+    }
+
+    function loadPosts() {
+      //'get_posts.php'로부터 글 목록을 가져오기 위해 fetch 함수를 사용합니다. 이 부분은 앞서 설명한 코드와 유사하게 HTTP GET 요청을 보내고, 응답을 받아오는 부분입니다.
+      fetch('RL_get_posts.php')
+      //서버로부터 받은 응답을 처리하는 부분입니다. 먼저 응답이 성공적인지 확인하고(!response.ok), 실패한 경우 에러를 던집니다. 그렇지 않으면 응답을 JSON으로 파싱합니다.
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+        //파싱된 JSON 데이터를 받아와서 글 목록을 렌더링하는 부분입니다. 각 포스트에 대해 테이블의 행을 생성하고, 제목은 링크로 구성되어 있습니다. 이때, 각 제목에 해당하는 포스트로 이동할 수 있는 링크가 생성되어 있습니다. 나머지 열에는 포스트의 ID, 작성자, 작성일시 정보가 들어가고, 삭제 버튼이 있는 열도 추가됩니다.
+      .then((posts) => {
+        const postList = document.getElementById('post-list').querySelector('tbody');
+        postList.innerHTML = '';
+          //posts 배열을 순회하며 각 post에 대해 콜백 함수를 실행합니다. 이 콜백 함수는 화살표 함수로 정의되어 있습니다.
+        posts.forEach((post) => {
+          const row = document.createElement('tr');
+          const titleCell = document.createElement('td');
+
+          row.innerHTML = `
+          <td>${post.category}</td>
+          <td>${post.food_name}</td>
+          `;
+          //row.appendChild(titleCell);
+          
+          const deleteCell = document.createElement('td');
+          const deleteBtn = document.createElement('button');
+          deleteBtn.textContent = '삭제';
+          deleteBtn.onclick = () => deletePost(post.no); // 변경 부분
+
+          deleteCell.appendChild(deleteBtn);
+          row.appendChild(deleteCell);
+
+          postList.appendChild(row);
+        });
+      })
+        //네트워크 요청이 실패하거나 예상치 못한 에러가 발생한 경우, 콘솔에 에러 메시지를 출력합니다.
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+    }
+
+    loadPosts();
+
+    function returnpage() {
+      window.location.href = "recommend_food.html"
+    }
+  </script>
+</body>
+</html>

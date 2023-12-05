@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        :root {
+            --padding: 100px;
+        }
+
+        .box {
+            min-height: 100vh;
+            justify-content: center;
+            position: relative;
+            margin: 0px auto;
+            width: 420px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            padding: var(--padding);
+            background-color: #c4dfff;
+            border-radius: 7px;
+        }
+
+        h2 {
+            color: #547fb2;
+        }
+        .menu {
+            margin: 50px auto;
+            text-align: center;
+        }
+        button {
+            background-color: #86acd9;
+            color: white;
+            padding: 10px 40px;
+            font-size: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background-color: #86acd9;
+
+        }
+
+        p#menu {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #444;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .recommand {
+            border-radius: 8px;
+            width: 320px;
+            position: relative;
+            left: -50px;
+            text-align: center;
+
+        }
+
+        p#recommendation {
+            padding: 20px;
+            font-size: 12px;
+            background-color: white;
+            border-radius: 30px;
+        }
+
+    </style>
+    <title>Lunch Recommendation App</title>
+</head>
+<body>
+    <div class="box">
+        <h2 style="text-align: center; font-size: 30px;">점메추</h2>
+        <p id="menu">오늘의 점심 메뉴는?</p>
+        <div class="recommand">
+            <p id="recommendation"></p>    
+        </div>
+
+
+
+        <div class="menu">
+           <button id="btnKorean">한식</button>
+           <button id="btnChinese">중식</button>
+           <button id="btnJapanese">일식</button>
+           <button id="btnWest">양식</button>
+
+       </div>
+
+       <button id="recommendButton" onclick="random()">랜덤으로 추천받기</button>
+
+       <br>
+       <button id="movepage" onclick="moveToInputPage()">음식 추천 입력하러 가기 </button>
+
+   </div>
+
+   <script>
+
+    function getRandomRecommendation(category) {
+        $.ajax({
+                    url: 'random.php', // PHP 파일 경로
+                    type: 'GET',
+                    data: { category: category }, // 카테고리 데이터 전송
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#recommendation').text(data.recommendation + ' 중에서 ' + data.food_name + ' 어떠세요?');
+                    },
+                    error: function() {
+                        console.error('추천을 가져오는 중 오류가 발생했습니다.');
+                    }
+                });
+    }
+    $(document).ready(function() {
+        $('#btnKorean').click(function() {
+            getRandomRecommendation('한식');
+        });
+
+        $('#btnChinese').click(function() {
+            getRandomRecommendation('중식');
+        });
+        $('#btnJapanese').click(function() {
+            getRandomRecommendation('일식');
+        });
+        $('#btnWest').click(function() {
+            getRandomRecommendation('양식');
+        });
+    });
+    function random() {
+        $.ajax({
+            url: 'random.php', // 여기에 실제 PHP 스크립트 파일의 경로를 입력하세요.
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                // 가져온 추천을 HTML에 업데이트
+                $('#recommendation, #foodName').text(data.recommendation + ' 중에서 ' + data.food_name + ' 어떠세요?');
+
+            },
+            error: function() {
+                console.error('무작위 추천을 가져오는 중 오류가 발생했습니다.');
+            }
+        });
+    }
+
+    function moveToInputPage() {
+        window.location.href = "recommend_food.html";
+    }
+    $('#recommendButton').click(random);
+    $('#movepage').click(moveToInputPage);
+</script>
+</body>
+</html>
